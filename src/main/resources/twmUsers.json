@@ -1,0 +1,10 @@
+{
+  "data": [
+    {"id": "C123456789","cellphone": "0935135135","IsTWMUser": "Y","IsRoaming": "N"},
+    {"id": "G100200300","cellphone": "0987123123","IsTWMUser": "Y","IsRoaming": "N"},
+    {"id": "A100000001","cellphone": "0922443537","IsTWMUser": "Y","IsRoaming": "Y"},
+    {"id": "F234100100","cellphone": "0908168168","IsTWMUser": "Y","IsRoaming": "Y"},
+    {"id": "B200000002","cellphone": "0908008008","IsTWMUser": "N","IsRoaming": "N"},
+    {"id": "D200000002","cellphone": "0909100100","IsTWMUser": "N","IsRoaming": "N"}
+  ]
+}

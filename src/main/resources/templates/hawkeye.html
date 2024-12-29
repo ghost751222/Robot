@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <script th:src="@{/js/lib/axios.min.js}"></script>
+    <script th:src="@{/js/lib/vuetable.js}"></script>
+    <script th:src="@{/js/lib/vue.js}"></script>
+    <script th:src="@{/js/lib/lodash.js}"></script>
+    <script th:src="@{/js/lib/xlsx.min.js}"></script>
+    <script th:src="@{/js/lib/moment-with-locales.js}"></script>
+    <script th:src="@{/js/home/home.js}"></script>
+
+
+    <script th:src="@{/js/lib/jquery-2.1.1.min.js}"></script>
+    <script th:src="@{/js/lib/bootstrap.min.js}"></script>
+    <script th:src="@{/js/lib/bootstrap-datetimepicker.js}"></script>
+
+
+    <script th:src="@{/js/lib/fileSaver.min.js}"></script>
+    <script th:src="@{/js/lib/tableexport.min.js}"></script>
+
+    <link rel="stylesheet" th:href="@{/css/lib/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/bootstrap-datetimepicker.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/vue.dialog.css}"/>
+
+    <style>
+        .loader {
+          border: 16px solid #f3f3f3;
+          border-radius: 50%;
+          border-top: 16px solid #3498db;
+          width: 120px;
+          height: 120px;
+          -webkit-animation: spin 2s linear infinite; /* Safari */
+          animation: spin 2s linear infinite;
+          position:fixed; top:50%; left:45%;
+          z-index:1000;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+
+        div.divRed{
+          color:Red;
+        }
+
+        div.divBlue{
+          color:Blue;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+
+<div id="app">
+
+
+    <div id="table-wrapper" class="ui container">
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary" @click="callapi">Call API</button>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <label>分機號碼</label>
+               <input type="text" v-model="agentId"/>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <textarea v-model="message" rows="20" cols="100">
+
+            </textarea>
+        </div>
+      <br/>
+
+
+    </div>
+</div>
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+
+
+const app = new Vue({
+    el: '#app',
+    data: {
+      agentId:"1005",
+      message:""
+    },
+    methods: {
+       callapi(){
+             var url =[[@{/hawkeye/}]] + this.agentId;
+
+             axios.get(url).then(res => {
+                 this.message = JSON.stringify(res.data,null, "\t")
+              }).catch(err => {
+                  alert('Error' + err)
+              })
+       }
+    }
+})
+
+</script>
+</html>

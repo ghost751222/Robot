@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <script th:src="@{/js/lib/axios.min.js}"></script>
+    <script th:src="@{/js/lib/vuetable.js}"></script>
+    <script th:src="@{/js/lib/vue.js}"></script>
+    <script th:src="@{/js/lib/lodash.js}"></script>
+    <script th:src="@{/js/lib/xlsx.min.js}"></script>
+    <script th:src="@{/js/lib/moment-with-locales.js}"></script>
+    <script th:src="@{/js/home/home.js}"></script>
+
+
+    <script th:src="@{/js/lib/jquery-2.1.1.min.js}"></script>
+    <script th:src="@{/js/lib/bootstrap.min.js}"></script>
+    <script th:src="@{/js/lib/bootstrap-datetimepicker.js}"></script>
+
+
+    <script th:src="@{/js/lib/fileSaver.min.js}"></script>
+    <script th:src="@{/js/lib/tableexport.min.js}"></script>
+
+    <link rel="stylesheet" th:href="@{/css/lib/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/bootstrap-datetimepicker.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/vue.dialog.css}"/>
+
+    <style>
+        .loader {
+          border: 16px solid #f3f3f3;
+          border-radius: 50%;
+          border-top: 16px solid #3498db;
+          width: 120px;
+          height: 120px;
+          -webkit-animation: spin 2s linear infinite; /* Safari */
+          animation: spin 2s linear infinite;
+          position:fixed; top:50%; left:45%;
+          z-index:1000;
+          display:none;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+
+        div.divRed{
+          color:Red;
+        }
+
+        div.divBlue{
+          color:Blue;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="loader" id="loader"></div>
+<div id="app">
+
+    <modal v-if="showModal">
+
+        <form slot="body" class="form" @submit.prevent="save">
+            <div class="form-group">
+                <label>planKey</label>
+                <input type="text" class="form-control" required
+                       v-model="plan.planKey" placeholder="Enter planKey"/>
+
+            </div>
+
+
+            <div class="form-group">
+                <label>Country</label>
+                <input type="text" class="form-control"  placeholder="Enter Country" required
+                       v-model="plan.country"/>
+            </div>
+
+            <div class="form-group">
+                <label>tts</label>
+                <input type="text" class="form-control"  placeholder="Enter tts" required
+                       v-model="plan.tts"/>
+            </div>
+
+            <div class="form-group">
+                <label>minDay</label>
+                <input type="number" class="form-control" required
+                       v-model="plan.minDay"/>
+            </div>
+
+            <div class="form-group">
+                <label>maxDay</label>
+                <input type="number" class="form-control" required
+                       v-model="plan.maxDay"/>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary">ok</button>
+                <input type="button" class="btn btn-primary" @click="close" value="close"/>
+            </div>
+        </form>
+
+    </modal>
+
+    <div id="table-wrapper" class="ui container">
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary" @click="query">查詢</button>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <select class="form-control" id="taskSelect">
+                    <option v-for="(item, index) in tasks" :value="item.taskCode">
+                        {{item.title }}
+                    </option>
+                </select>
+            </div>
+
+        </div>
+      <br/>
+
+
+<!--        <div class="row">-->
+<!--            <vuetable-pagination ref="pagination"-->
+<!--                                 :css="css.pagination"-->
+<!--                                 @vuetable-pagination:change-page="onChangePage"-->
+<!--            ></vuetable-pagination>-->
+<!--            <vuetable ref="vuetable"-->
+<!--                      :api-mode="false"-->
+<!--                      :fields="fields"-->
+<!--                      :sort-order="sortOrder"-->
+<!--                      :css="css.table"-->
+<!--                      pagination-path="pagination"-->
+<!--                      :per-page="perPage"-->
+<!--                      :data-manager="dataManager"-->
+<!--                      @vuetable:pagination-data="onPaginationData"-->
+<!--                      @vuetable:loaded="onLoaded"-->
+<!--                      @edit-row="editRow"-->
+<!--                      id="table"-->
+<!--            >-->
+<!--                <template slot="actions" scope="props">-->
+<!--                    <div class="table-button-container">-->
+<!--                        <button class="btn btn-default" @click="delRow(props.rowIndex)">Delete</button>-->
+<!--                    </div>-->
+<!--                </template>-->
+<!--            </vuetable>-->
+
+<!--        </div>-->
+    </div>
+</div>
+</body>
+
+<script type="text/x-template" id="modal-template">
+    <transition name="modal">
+        <div class="modal-mask">
+            <div class="modal-wrapper">
+                <div class="modal-container">
+
+                    <div class="modal-header">
+                        <slot name="header">
+
+                        </slot>
+                    </div>
+
+                    <div class="modal-body">
+                        <slot name="body">
+                        </slot>
+                    </div>
+
+                    <div class="modal-footer">
+                        <slot name="footer">
+
+                        </slot>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </transition>
+</script>
+<script type="text/javascript" th:inline="javascript">
+      Vue.use(Vuetable);
+ Vue.component("modal", {
+        template: "#modal-template"
+      });
+    const app = new Vue({
+    el: '#app',
+    components: {
+        'vuetable-pagination': Vuetable.VuetablePagination
+    },
+    data: {
+        showModal: false,
+        data: [],
+        tasks:null,
+        sortOrder: [
+
+        ],
+        css: {
+            table: {
+                tableClass: 'table table-striped table-bordered table-hovered',
+                tableWrapper: '',
+                tableHeaderClass: 'fixed',
+                tableBodyClass: 'mb-0',
+                loadingClass: 'loading',
+                ascendingIcon: 'glyphicon glyphicon-chevron-up',
+                descendingIcon: 'glyphicon glyphicon-chevron-down',
+                handleIcon: 'glyphicon glyphicon-menu-hamburger',
+            },
+            pagination: {
+                infoClass: 'pull-left',
+                wrapperClass: 'vuetable-pagination pull-right',
+                activeClass: 'btn-primary',
+                disabledClass: 'disabled',
+                pageClass: 'btn btn-border',
+                linkClass: 'btn btn-border',
+                icons: {
+                    first: '',
+                    prev: '',
+                    next: '',
+                    last: '',
+                },
+            }
+        }
+    }, methods: {
+        onPaginationData(paginationData) {
+            this.$refs.pagination.setPaginationData(paginationData)
+        },
+        onChangePage(page) {
+            this.$refs.vuetable.changePage(page)
+        },
+        editRow(rowData,index) {
+            this.index = index
+            this.action = "upd"
+            this.plan.planKey=rowData.planKey;
+            this.plan.country = rowData.country;
+            this.plan.tts = rowData.tts;
+            this.plan.minDay = rowData.minDay;
+            this.plan.maxDay = rowData.maxDay;
+            this.open()
+        },
+        deleteRow(rowData) {
+            alert("You clicked delete on" + JSON.stringify(rowData))
+        },
+        onLoading() {
+            document.querySelector('#loader').style.display ="block";
+            console.log('loading... show your spinner here')
+        },
+        onLoaded() {
+          document.querySelector('#loader').style.display ="none";
+        },
+        dataManager(sortOrder, pagination) {
+
+              let local = this.data;
+
+
+              // sortOrder can be empty, so we have to check for that as well
+              if (sortOrder.length > 0) {
+                local = _.orderBy(
+                  local,
+                  sortOrder[0].sortField,
+                  sortOrder[0].direction
+                );
+              }
+
+              pagination = this.$refs.vuetable.makePagination(
+                local.length,
+                this.perPage
+              );
+
+              let from = pagination.from - 1;
+              let to = from + this.perPage;
+
+              return {
+                pagination: pagination,
+                data: _.slice(local, from, to)
+              };
+        },query(){
+             document.querySelector('#loader').style.display ="block";
+             var url =[[@{/twm/plans}]];
+             var _params ={};
+
+             axios.get(url).then(res => {
+
+                        this.data=res.data.plans;
+
+                     }).catch(err => {
+                        document.querySelector('#loader').style.display ="none";
+                        alert('Error' + err)
+
+                     })
+        }
+    }, mounted() {
+        this.tasks=[
+            {title:"投資型投保確認世紀安心",taskCode:"dcc4c190e10e4b76a0beeb880023f02d"},
+            {title:"投資型投保確認世紀安穩",taskCode:"dcc4c190e10e4b76a0beeb880023f02d"},
+            {title:"投資型投保確認世紀達利",taskCode:"dcc4c190e10e4b76a0beeb880023f02d"}
+        ]
+
+    },watch: {
+        data:function(newVal, oldVal) {
+          this.$refs.vuetable.refresh();
+
+        }
+    },updated:function(){
+
+    }
+})
+
+</script>
+</html>

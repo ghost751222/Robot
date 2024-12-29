@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <script th:src="@{/js/lib/axios.min.js}"></script>
+    <script th:src="@{/js/lib/vuetable.js}"></script>
+    <script th:src="@{/js/lib/vue.js}"></script>
+    <script th:src="@{/js/lib/lodash.js}"></script>
+    <script th:src="@{/js/lib/xlsx.min.js}"></script>
+    <script th:src="@{/js/lib/moment-with-locales.js}"></script>
+    <script th:src="@{/js/home/home.js}"></script>
+
+
+    <script th:src="@{/js/lib/jquery-2.1.1.min.js}"></script>
+    <script th:src="@{/js/lib/bootstrap.min.js}"></script>
+    <script th:src="@{/js/lib/bootstrap-datetimepicker.js}"></script>
+
+
+    <script th:src="@{/js/lib/fileSaver.min.js}"></script>
+    <script th:src="@{/js/lib/tableexport.min.js}"></script>
+
+    <link rel="stylesheet" th:href="@{/css/lib/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/bootstrap-datetimepicker.css}"/>
+
+
+    <style>
+        .loader {
+          border: 16px solid #f3f3f3;
+          border-radius: 50%;
+          border-top: 16px solid #3498db;
+          width: 120px;
+          height: 120px;
+          -webkit-animation: spin 2s linear infinite; /* Safari */
+          animation: spin 2s linear infinite;
+          position:fixed; top:50%; left:45%;
+          z-index:1000;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+
+        div.divRed{
+          color:Red;
+        }
+
+        div.divBlue{
+          color:Blue;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="loader" id="loader"></div>
+<div id="app">
+
+
+    <div id="table-wrapper" class="ui container">
+
+
+        <div class="row">
+            <div class="col-md-2">
+                <button type="button" class="btn btn-primary" @click="query">查詢</button>
+                <button type="submit" class="btn btn-primary" @click="exportExcel">Excel導出</button>
+            </div>
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="startTime">撥打時間(起)</label>
+                    <div class="input-group date form-group" id="startTime">
+                        <input type='text' class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="endTime">撥打時間(迄)</label>
+                    <div class="input-group date form-group" id="endTime">
+                        <input type='text' class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <select class="form-control" id="taskSelect">
+                    <option v-for="(item, index) in taskOptionArray" :value="item.robotFlow">
+                            {{item.title }}
+                    </option>
+                </select>
+            </div>
+
+        </div>
+        <div class="row">
+            <vuetable-pagination ref="pagination"
+                                 :css="css.pagination"
+                                 @vuetable-pagination:change-page="onChangePage"
+            ></vuetable-pagination>
+            <vuetable ref="vuetable"
+                      :api-mode="false"
+                      :fields="fields"
+                      :sort-order="sortOrder"
+                      :css="css.table"
+                      pagination-path="pagination"
+                      :per-page="perPage"
+                      :data-manager="dataManager"
+                      @vuetable:pagination-data="onPaginationData"
+                      @vuetable:loaded="onLoaded"
+                      id="table"
+            >
+
+            </vuetable>
+
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script type="text/javascript" th:inline="javascript">
+      Vue.use(Vuetable);
+
+    const app = new Vue({
+    el: '#app',
+    components: {
+        'vuetable-pagination': Vuetable.VuetablePagination
+    },
+    data: {
+        showModal: false,
+        format:'YYYY-MM-DDTHH:mm',
+        $startTime:'',
+        $endTime:'',
+        taskOptionArray:[],
+        data: [],
+        fields: [{name:'callID',title:'callID'},{name:'called',title:'電話號碼',sortField:'called'},{name:'startTime',title:'撥打時間'},{name:'tags',title:'所有通話標籤'}],
+        perPage:10,
+        sortOrder: [
+            { field: 'called', direction: 'asc' }
+        ],
+        css: {
+            table: {
+                tableClass: 'table table-striped table-bordered table-hovered',
+                tableWrapper: '',
+                tableHeaderClass: 'fixed',
+                tableBodyClass: 'mb-0',
+                loadingClass: 'loading',
+                ascendingIcon: 'glyphicon glyphicon-chevron-up',
+                descendingIcon: 'glyphicon glyphicon-chevron-down',
+                handleIcon: 'glyphicon glyphicon-menu-hamburger',
+            },
+            pagination: {
+                infoClass: 'pull-left',
+                wrapperClass: 'vuetable-pagination pull-right',
+                activeClass: 'btn-primary',
+                disabledClass: 'disabled',
+                pageClass: 'btn btn-border',
+                linkClass: 'btn btn-border',
+                icons: {
+                    first: '',
+                    prev: '',
+                    next: '',
+                    last: '',
+                },
+            }
+        }
+    }, methods: {
+        onPaginationData(paginationData) {
+            this.$refs.pagination.setPaginationData(paginationData)
+        },
+        onChangePage(page) {
+            this.$refs.vuetable.changePage(page)
+        },
+        editRow(rowData) {
+            alert("You clicked edit on" + JSON.stringify(rowData))
+        },
+        deleteRow(rowData) {
+            alert("You clicked delete on" + JSON.stringify(rowData))
+        },
+        onLoading() {
+            document.querySelector('#loader').style.display ="block";
+            console.log('loading... show your spinner here')
+        },
+        onLoaded() {
+          document.querySelector('#loader').style.display ="none";
+        },
+        dataManager(sortOrder, pagination) {
+
+              let local = this.data;
+
+
+              // sortOrder can be empty, so we have to check for that as well
+              if (sortOrder.length > 0) {
+                local = _.orderBy(
+                  local,
+                  sortOrder[0].sortField,
+                  sortOrder[0].direction
+                );
+              }
+
+              pagination = this.$refs.vuetable.makePagination(
+                local.length,
+                this.perPage
+              );
+
+              let from = pagination.from - 1;
+              let to = from + this.perPage;
+
+              return {
+                pagination: pagination,
+                data: _.slice(local, from, to)
+              };
+        },query(){
+             var taskVal = document.querySelector("#taskSelect").value;
+             if(window.localStorage) localStorage.setItem('taskItem', taskVal);
+
+
+
+             document.querySelector('#loader').style.display ="block";
+             var url =[[@{/api/taskResult}]];
+             var _params ={};
+             _params.robotFlow = taskVal;
+             _params.startTime = this.$startTime.data('DateTimePicker').date().format(this.format)
+             _params.endTime = this.$endTime.data('DateTimePicker').date().format(this.format)
+             axios.get(url,{params:_params}).then(res => {
+
+
+                       let localData = res.data.user;
+                       this.fields = this.fields.slice(0,4)
+                       console.log( this.fields)
+                       //this.data =
+                       var robot ="機器人:";
+                       var user ="用戶:";
+                       var divRed = document.createElement('div')
+                       divRed.className ='divRed'
+
+                       var divBlue = document.createElement('div')
+                       divBlue.className ='divBlue'
+
+                       localData.forEach(d=>{
+                          var talkInfos=JSON.parse(d["talkInfos"])
+                          var nlpCRMData=JSON.parse(d["nlpCRMData"])
+
+                          if(typeof(nlpCRMData) == "string"){
+                             nlpCRMData = JSON.parse(nlpCRMData)
+                          }
+                          var dialogInfos = nlpCRMData.dialogInfo
+
+                          for(var index in dialogInfos){
+                              var dialogInfo = dialogInfos[index]
+                              var roundKey = 'round'
+                              var roundName =  roundKey + dialogInfo[roundKey]
+                              divRed.innerHTML = robot + dialogInfo.responseText;
+                              divBlue.innerHTML = user + dialogInfo.requestText;
+                              d[roundName] = divBlue.outerHTML + divRed.outerHTML
+
+
+                              if (!this.fields.some(f => f.name === roundName)) {
+                                 this.fields.push({name:roundName,title:roundName})
+                              }
+                          }
+                          var tags=""
+                          for(var i in talkInfos)
+                          {
+                             if(talkInfos[i].label_name =="") continue;
+                             if(tags == "")
+                             {
+                               tags= talkInfos[i].label_name
+                             }else{
+                               tags= tags + "," + talkInfos[i].label_name
+                             }
+
+
+
+                          }
+                          d.tags = tags
+                       })
+                       this.$nextTick(function() {
+                            this.$refs.vuetable.normalizeFields()
+                            this.$refs.vuetable.reload()
+                        })
+
+                        this.data=localData;
+
+                     }).catch(err => {
+                        document.querySelector('#loader').style.display ="none";
+                        alert('Error' + err)
+
+                     })
+        },exportExcel(){
+
+                const aoa =[];
+                const header =[];
+
+                let _data =[]
+
+                    this.data.forEach(d=>{
+                       _data=[]
+                       this.fields.forEach(f=>{
+                            if(header.length < this.fields.length){
+                                header.push(f.title)
+                            }
+                             let val = d[f.name] ? d[f.name]:""
+                             try{
+                                val = val.replace(/<[^<]+>/g,"")
+                             }catch(e){
+                                console.error(e)
+                             }
+
+                            _data.push(val)
+                       })
+                       aoa.push(_data)
+                    })
+                    aoa.unshift(header);
+                    var sheet = XLSX.utils.aoa_to_sheet(aoa);
+                    openDownloadDialog(sheet2blob(sheet), '下載.xlsx');
+          }
+    }, mounted() {
+
+        this.$startTime = $('#startTime').datetimepicker( {format: this.format,date:moment().add(-10, 'days')  });
+        this.$endTime = $('#endTime').datetimepicker( {format: this.format,date:moment()});
+
+
+ this.taskOptionArray =[
+<!--            {title:"0403測試",taskCode:"dcc4c190e10e4b76a0beeb880023f02d"},-->
+<!--            {title:"智能測試",taskCode:"dcc4c190e10e4b76a0beeb880023f02d"},-->
+<!--            {title:"保單確認小組",taskCode:"dcc4c190e10e4b76a0beeb880023f02d"},-->
+<!--            {title:"test語料庫",taskCode:"dcc4c190e10e4b76a0beeb880023f02d"},-->
+<!--            {title:"胖胖",taskCode:"2177e8da700942a68a4fdf6f0fcfc44b"},-->
+<!--            {title:"簡易調查",taskCode:"cfa22ad90494467e96adc04f713c578f"},-->
+<!--            {title:"人聲測試",taskCode:"32f8918312d843f5a1ddfabae9978db4"},-->
+<!--            {title:"Jeff_API",taskCode:"78223c2edeee4e7fbc3bf68d4cf1c1bd"},-->
+<!--            {title:"簡易調查_標普",taskCode:"00bf4e374e054bb691d6ccbd5fa036ac"},-->
+<!--            {title:"智能語音回訪_API",taskCode:"8d20430e05ef483d9439d3850a6e8334"},-->
+<!--            {title:"簡易調查_二",taskCode:"dec6ed6dc4ab46f686ba710fc7bd1494"},-->
+<!--            {title:"保單確認小組_API_S",taskCode:"28db50f07e904755b5a5cfe728195073"},-->
+<!--            {title:"試用品寄送",taskCode:"fbfa8504a86345b785aa00a74940564f"},-->
+<!--            {title:"金額報讀測試",taskCode:"885981adad4f426c879805d168940f13"},-->
+<!--            {title:"取音檔",taskCode:"fd2f68378ca743159eaf9897d4394342"},-->
+<!--            {title:"補選民調",taskCode:"3853583337214e43ae9f409c3e5da2f6"},-->
+<!--            {title:"0812",taskCode:"6a34936a774b46a8b6a541789be7b65f"},-->
+<!--            {title:"08101",taskCode:"4ec1bc809159426fb5a5dca9fb136b07"},-->
+<!--            {title:"國際漫遊",taskCode:"813e4c126649463cba6f665bcf40d177"},-->
+
+
+             {title:"POC東森",robotFlow:"d743d6583ce84cc7aa46da161f759450"},
+<!--             {title:"客戶進線查詢",robotFlow:"25dbdae8c1504c5a862c4e3b1355f8bd"},-->
+<!--             {title:"智能語音回訪_API",robotFlow:"70fabf66beb34b9ebbba844d24f13574"},-->
+<!--             {title:"保單確認小組_API",robotFlow:"3638067209f14b33b86e2cdb7bcf58cb"},-->
+<!--             {title:"保單確認小組_API_S",robotFlow:"10b9f56b39fb4aeba36dfb88cfed0d85"},-->
+<!--             {title:"補選民調",robotFlow:"08d682330d5642199e370eebd8962094"},-->
+<!--             {title:"智能語音進線_api",robotFlow:"660d1023634c4ddcbcaa6f094eb17fbd"},-->
+<!--             {title:"實體帳單退件",robotFlow:"56efddc80cbe4cebb2c1cf8c8438ade8"},-->
+<!--             {title:"國際漫遊",robotFlow:"3d36d393cf5e491c8b464c2ff7c328f4"},-->
+<!--             {title:"叫修流程",robotFlow:"acecee9e26cc40e3bbd2adc515b6a5c7"},-->
+<!--             {title:"信用卡照會",robotFlow:"098b5a195bf740d8b007763ceda115f6"},-->
+<!--             {title:"高齡投保確認",robotFlow:"c9a216924ea64382b0bdbdeba206a07b"},-->
+<!--             {title:"投資型投保意願確認_世紀安心",robotFlow:"39079505062544b491e676b569952ea4"},-->
+<!--             {title:"投資型投保意願確認_世紀安穩",robotFlow:"442fba788684400fac655ff0077b6c6a"},-->
+<!--             {title:"投資型投保意願確認_世紀達利",robotFlow:"1b201665f64f481f923d707fe3eaa347"},-->
+<!--             {title:"電子帳單退件",robotFlow:"d7acedfc1b2146f79078b52258fca3e4"},-->
+<!--             {title:"測試email",robotFlow:"e585ed02d07440c0b4ed66f9be9647b1"},-->
+<!--             {title:"電銷_AQ",robotFlow:"ee8d966f2b9449b39ebd87ca4c1d4162"},-->
+<!--             {title:"電銷_續約",robotFlow:"8809548963d34dea932d010819108e40"},-->
+<!--             {title:"催收",robotFlow:"24fd795cca554abfaeb0119bea186c4b"},-->
+<!--             {title:"POC測試IB",robotFlow:"100455"},-->
+<!--             {title:"滿意度調查",robotFlow:"100448"}-->
+
+
+
+
+        ]
+
+
+    },watch: {
+        data:function(newVal, oldVal) {
+          this.$refs.vuetable.refresh();
+        }
+    },updated:function(){
+
+        if(window.localStorage){
+           document.querySelector("#taskSelect").value = localStorage.getItem('taskItem');
+        }
+    }
+})
+</script>
+</html>

@@ -1,0 +1,235 @@
+{
+  "plans": [
+    {
+      "planKey": "1",
+      "country": "日本",
+      "tts": "方案一:漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "中國大陸",
+      "tts": "方案一:漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "香港",
+      "tts": "方案一:漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "澳門",
+      "tts": "方案一:漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "日本",
+      "tts": "方案二:吃到飽199元,4到30日型",
+      "minDay": "4",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "3",
+      "country": "日本",
+      "tts": "方案三:199元輕量型,1GB量到降速",
+      "minDay": "15",
+      "maxDay": "15"
+    },
+    {
+      "planKey": "1",
+      "country": "美國",
+      "tts": "方案一:漫遊上網吃到飽599元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "美國",
+      "tts": "方案二:吃到飽298元,日租型,限選T-Mobile",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "3",
+      "country": "美國",
+      "tts": "方案三:299元輕量型,1GB量到降速",
+      "minDay": "7",
+      "maxDay": "7"
+    },
+    {
+      "planKey": "1",
+      "country": "韓國",
+      "tts": "方案一：漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "馬來西亞",
+      "tts": "方案一：漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "新加坡",
+      "tts": "方案一：漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "越南",
+      "tts": "方案一：漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "泰國",
+      "tts": "方案一：漫遊上網吃到飽399元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "1",
+      "country": "加拿大",
+      "tts": "方案一：漫遊上網吃到飽599元,日租型",
+      "minDay": "1",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "中國大陸",
+      "tts": "方案二:吃到飽1699元,30日型",
+      "minDay": "30",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "香港",
+      "tts": "方案二:吃到飽1699元,30日型",
+      "minDay": "30",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "澳門",
+      "tts": "方案二:吃到飽1699元,30日型",
+      "minDay": "30",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "韓國",
+      "tts": "方案二:吃到飽199元,4到30日型",
+      "minDay": "4",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "馬來西亞",
+      "tts": "方案二:吃到飽199元,4到30日型",
+      "minDay": "4",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "新加坡",
+      "tts": "方案二:吃到飽199元,4到30日型",
+      "minDay": "4",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "越南",
+      "tts": "方案二:吃到飽258元,5到30日型",
+      "minDay": "5",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "泰國",
+      "tts": "方案二:吃到飽199元,4到30日型",
+      "minDay": "4",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "2",
+      "country": "加拿大",
+      "tts": "方案二:吃到飽179元,8到30日型限選Rogers",
+      "minDay": "8",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "3",
+      "country": "中國大陸",
+      "tts": "方案三: 三合一,1299元,中港5GB",
+      "minDay": "10",
+      "maxDay": "10"
+    },
+    {
+      "planKey": "3",
+      "country": "香港",
+      "tts": "方案三: 三合一,1299元,中港5GB",
+      "minDay": "10",
+      "maxDay": "10"
+    },
+    {
+      "planKey": "3",
+      "country": "澳門",
+      "tts": "方案三:  258元,4到30日型",
+      "minDay": "4",
+      "maxDay": "30"
+    },
+    {
+      "planKey": "3",
+      "country": "韓國",
+      "tts": "方案三: 199元輕量型,1GB量到降速",
+      "minDay": "15",
+      "maxDay": "15"
+    },
+    {
+      "planKey": "3",
+      "country": "馬來西亞",
+      "tts": "方案三: 199元輕量型,1GB量到降速",
+      "minDay": "15",
+      "maxDay": "15"
+    },
+    {
+      "planKey": "3",
+      "country": "新加坡",
+      "tts": "方案三: 199元輕量型,1GB量到降速",
+      "minDay": "15",
+      "maxDay": "15"
+    },
+    {
+      "planKey": "3",
+      "country": "越南",
+      "tts": "方案三: 299元輕量型,1GB量到降速",
+      "minDay": "15",
+      "maxDay": "15"
+    },
+    {
+      "planKey": "3",
+      "country": "泰國",
+      "tts": "方案三: 199元輕量型,1GB量到降速",
+      "minDay": "15",
+      "maxDay": "15"
+    },
+    {
+      "planKey": "3",
+      "country": "加拿大",
+      "tts": "方案三: 299元輕量型,1GB量到降速",
+      "minDay": "7",
+      "maxDay": "7"
+    }
+  ]
+}

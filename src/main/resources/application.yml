@@ -1,0 +1,25 @@
+robot.question.q1 ={"男性":"01","女性":"02"}
+robot.question.q1-taskid=103329
+
+robot.question.q2 ={"新北市":"01","宜蘭縣":"02","桃園市":"03","新竹市":"04","苗栗縣":"05","彰化縣":"07","南投縣":"08","雲林縣":"09","嘉義縣":"10","屏東縣":"13","臺東縣":"14","花蓮縣":"15","澎湖縣":"16","基隆市":"17","新竹市":"18","臺中市":"19","嘉義市":"20","臺南市":"21","金門縣":"22","連江縣":"23","臺北市":"63","高雄市":"64","不知道/拒答":"98"}
+robot.question.q2-taskid=103456,103455,103330
+
+robot.question.q3 ={"有":"01","沒有":"02","不知道/拒答":"98"}
+robot.question.q3-taskid=103331
+
+robot.question.q4 ={"擔心":"01","不擔心":"02"}
+robot.question.q4-taskid=103332,103333
+
+robot.question.q5 ={"非常擔心":"01","有點擔心":"02"}
+robot.question.q5-taskid=103334,103372
+
+robot.question.q6 ={"不太擔心":"03","非常不擔心":"04"}
+robot.question.q6-taskid=103334,103372
+
+robot.question.q7 ={"不知道":"不知道","拒答":"拒答"}
+robot.question.q7-taskid=103335
+
+robot.question.q8 ={"不知道":"不知道","拒答":"拒答"}
+robot.question.q8-taskid=103336
+
+

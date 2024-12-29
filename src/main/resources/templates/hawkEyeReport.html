@@ -1,0 +1,250 @@
+<html>
+<head>
+    <title>Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script th:src="@{/js/lib/axios.min.js}"></script>
+    <script th:src="@{/js/lib/vue.js}"></script>
+    <script th:src="@{/js/lib/vuetable.js}"></script>
+    <script th:src="@{/js/lib/lodash.js}"></script>
+    <script th:src="@{/js/lib/xlsx.min.js}"></script>
+    <script th:src="@{/js/home/home.js}"></script>
+    <script th:src="@{/js/lib/moment-with-locales.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/lib/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/lib/semantic.min.css}"/>
+
+
+</head>
+<body>
+<div id="app" class="container-fluid">
+    <button type="button" class="btn btn-primary" id="excel">Excel</button>
+
+    <div class="row">
+
+        <vuetable ref="vuetable"
+                  detail-row-component="detailRow"
+                  pagination-path="pagination"
+                  id="table"
+                  track-by="callID"
+                  :css="css.table"
+                  :per-page="perPage"
+                  :data-manager="dataManager"
+                  :api-mode="false"
+                  :fields="fields"
+                  :sort-order="sortOrder"
+                  @vuetable:pagination-data="onPaginationData"
+                  @vuetable:cell-clicked="onCellClicked"
+
+        >
+
+        </vuetable>
+        <vuetable-pagination ref="pagination"
+                             :css="css.pagination"
+                             @vuetable-pagination:change-page="onChangePage"
+        ></vuetable-pagination>
+    </div>
+</div>
+
+
+</body>
+<template id="detailRow" >
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">模型名稱</th>
+            <th scope="col">命中關鍵詞</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item,index) in rowData.hitModels">
+                <td>{{item.modelName}}</td>
+                <td>{{item.hitWords}}</td>
+            </tr>
+        </tbody>
+
+</template>
+
+<script type="text/javascript" th:inline="javascript">
+window.onload = ()=>{
+
+    document.querySelector("#excel").onclick =(e)=>{
+        //console.log(app.fields,app.data)
+
+         const aoa =[];
+         const header =[];
+         let _data =[]
+
+         app.data.forEach(d=>{
+                _data=[]
+                app.fields.forEach((f,index)=>{
+                            if(header.length < app.fields.length){
+                                header.push(f.title)
+                            }
+                             let val = d[f.name] ? d[f.name]:""
+                             if(index == 6){
+
+                                if(d["hitModels"]){
+                                   var tab = ","
+                                   val = "模型名稱" + tab + " 命中關鍵詞\n"
+                                   d["hitModels"].forEach(m=>{
+                                        val +=m.modelName
+                                        val +=tab
+                                        val +=m.hitWords
+                                        val +="\n"
+                                    })
+                                }else{
+                                   val = ""
+                                }
+                             }else if(index ==7){
+                                val = JSON.stringify(d["extracted"])
+                                //if(!val) val=""
+                                val =""
+                             }
+
+
+                            _data.push(val)
+                     })
+               aoa.push(_data)
+               aoa.push([])
+        })
+
+
+
+         aoa.unshift(header);
+         var sheet = XLSX.utils.aoa_to_sheet(aoa);
+         openDownloadDialog(sheet2blob(sheet), '下載.xlsx');
+
+    }
+}
+
+
+
+
+Vue.component("detailRow", {
+  template:'#detailRow'
+  ,
+  props: {
+    rowData: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    onClick (event) {
+      console.log('my-detail-row: on-click', event.target)
+    }
+  }
+});
+        Vue.use(Vuetable);
+
+        const app = new Vue({
+                el: '#app'
+                ,components: {
+                    'vuetable-pagination': Vuetable.VuetablePagination
+                }
+                ,data:{
+                     data:[]
+                     ,perPage:10
+                     ,sortOrder: []
+                     ,fields:
+                           [
+                            {name:'agentID',title:'坐席帳號'},{name:'extension',title:'坐席分機號'},{name:'caller',title:'客戶號碼'},{name:'called',title:'坐席號碼'},
+                            {name:'callID',title:'通話ID'},{name:'direction',title:'呼叫方向',formatter:(value) =>{return 'inbound'==value ?'進線':'外線'}},
+                            {name:'callID',title:'匹配模型',
+                                    formatter:(value,vuetable)=>{
+                                           let icon = vuetable.isVisibleDetailRow(value) ? "minus" : "plus";
+                                           var d = app.data.find(d=>d.callID == value)
+                                           return !d.HasHitModels ? "":[
+                                            '<button type="button" class="btn btn-info">',
+                                            `<span class="glyphicon glyphicon-${icon}-sign"></span>`,
+                                            "</button>"
+                                          ].join("");
+                                    }
+                            },
+                            {name:'extracted',title:'確認關鍵詞'},
+                            {name:'duration',title:'通話時長',formatter:(ms)=>{return moment.utc(ms).format('HH:mm:ss')}},{name:'callTime',title:'通話撥打時間'},
+
+
+                           ]
+                     ,css: {
+                            table: {
+
+
+
+                            },
+                            pagination: {
+                                icons: {
+                                    first: '',
+                                    prev: '',
+                                    next: '',
+                                    last: '',
+                                },
+                            }
+                        }
+                }
+                ,methods:{
+                    onCellClicked({ data, field, event }){
+                        if(data.hitModels)
+                            this.$refs.vuetable.toggleDetailRow(data.callID);
+                    },
+                    onPaginationData(paginationData) {
+                          this.$refs.pagination.setPaginationData(paginationData)
+                    },
+                    onChangePage(page) {
+                         this.$refs.vuetable.changePage(page)
+                    },
+                    dataManager(sortOrder, pagination) {
+                          let local = this.data;
+
+                          // sortOrder can be empty, so we have to check for that as well
+                          if (sortOrder.length > 0) {
+                            local = _.orderBy(
+                              local,
+                              sortOrder[0].sortField,
+                              sortOrder[0].direction
+                            );
+                          }
+
+                          pagination = this.$refs.vuetable.makePagination(
+                            local.length,
+                            this.perPage
+                          );
+
+                          let from = pagination.from - 1;
+                          let to = from + this.perPage;
+
+                          return {
+                            pagination: pagination,
+                            data: _.slice(local, from, to)
+                          };
+                    }
+                }
+                ,mounted(){
+                       var url =[[@{/hawkEye/getData}]];
+                        axios.get(url).then(res => {
+                           res.data.forEach(d=>{
+                                d.HasHitModels =false
+                                if(d.hitModels){
+                                    d.hitModels = JSON.parse(d.hitModels)
+                                    d.HasHitModels =true
+                                }
+                           })
+                           this.data = res.data
+
+                        }).catch(err => {
+                            alert('Error' + err)
+
+                        })
+                }, watch: {
+                    data: function(newVal, oldVal) {
+                        this.$refs.vuetable.refresh();
+
+                    }
+                }
+            })
+
+
+
+
+    </script>
+</html>
